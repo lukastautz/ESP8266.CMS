@@ -47,7 +47,7 @@ String currentLine;
 String pn;
 String Articles[MAX_ARTICLES * 2];
 String result;
-String httpRequest(String url, String clientIp);
+String httpRequest(String url, bool isAdmin);
 unsigned short page;
 unsigned short acC = 1;
 unsigned long rS;
@@ -184,8 +184,8 @@ void loop() {
                                 delay(1); // Without this delay, big post data will be shortened
                             }
                             if (post[0] == '{') post = ""; // JSON Post isn't supported yet
-                        }
-                        client.print(httpRequest(url, client.remoteIP().toString()));
+							client.print(httpRequest(url, true));
+                        } else client.print(httpRequest(url, false));
                         break;
                     } else {
                         currentLine = "";
@@ -208,7 +208,7 @@ void loop() {
     }
 }
 
-String httpRequest(String url, String clientIp) {
+String httpRequest(String url, bool isAdmin) {
 #ifdef STATUS_PAGE
     if (url == "/status") {
         result = F("HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>" SITE_NAME " - " LANG_STATUS "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><style>body{font-family:sans-serif;color:#505a62;font-size:1rem;line-height:1.3}hr{border:0;border-top:0.1rem solid #f4f5f6;margin:0.6rem 0}h1{font-weight:normal;letter-spacing:-0.073rem;margin-bottom:.9rem;margin-top:.15rem;line-height:1.2;font-size:2.4rem}</style></head><body><h1>" SITE_NAME " - " LANG_STATUS "</h1>");
@@ -245,7 +245,7 @@ String httpRequest(String url, String clientIp) {
     else page = atoi(pn.c_str());
     if (Articles[(page * DISPLAY_ARTICLES * 2) + 1] != "") olderPage = true;
     else olderPage = false;
-    if (clientIp == ADMIN_IP) {
+    if (isAdmin == true) {
         if (url == "/admin/edit") {
             unsigned short _id = atoi(GET("id").c_str());
             String title = Articles[_id];
